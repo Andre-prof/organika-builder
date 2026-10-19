@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useGameStore, gameStore } from './store/useGameStore.js';
 import { BLOCOS } from './data/blocos.js';
-import { obterDesafio } from './data/desafios.js';
+import { obterDesafio, DESAFIOS } from './data/desafios.js';
 import { contarCarbonos } from './game/ValidadorEstrutura.js';
 import { Icon } from './components/Icon.jsx';
 import { Peca, DesenhoPeca } from './components/Peca.jsx';
@@ -16,6 +16,7 @@ import { FormulaPlana } from './components/FormulaPlana.jsx';
 import LaboratorioProgressivo from './pages/LaboratorioProgressivo.jsx';
 import './progressive.css';
 import { CelebracaoAcerto, useCelebracaoAcerto } from './components/CelebracaoAcerto.jsx';
+import { ProximaFase } from './components/ProximaFase.jsx';
 
 function EmptyBoard() {
   return <g className="empty-board" aria-hidden="true">
@@ -154,6 +155,7 @@ function Laboratorio({ onRestart }) {
         const unlocked = i === 0 || state.concluidos.includes(challenges[i - 1].id); const complete = state.concluidos.includes(d.id);
         return <button key={d.id} disabled={!unlocked} className={`journey-step${state.desafioId === d.id ? ' current' : ''}${complete ? ' finished' : ''}`} onClick={() => { if (state.desafioId !== d.id) state.trocarDesafio(d.id); }} aria-label={`${i + 1}. ${d.nome}${!unlocked ? ', bloqueado' : ''}`} aria-current={state.desafioId === d.id ? 'step' : undefined}><span>{complete ? <Icon name="check" size={16} /> : unlocked ? String(i + 1).padStart(2, '0') : <Icon name="lock" size={13} />}</span><small>{d.nome}</small></button>;
       })}</div></section>
+      <ProximaFase nivel="iniciante" desafios={DESAFIOS} concluidos={state.concluidos} />
       <footer className="site-footer"><span>Orgânika Builder <span>·</span> Química que faz sentido.</span><span>Feito para explorar, peça por peça.</span></footer>
     </main>
     {dialog && <Dialog kind={dialog} onClose={() => setDialog(null)} onConfirm={() => { if (dialog === 'restart') onRestart(); else state.reiniciar(); setDialog(null); }} />}

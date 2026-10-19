@@ -55,6 +55,7 @@ try {
   assert.ok(await page.locator('.challenge-copy p').evaluate((e) => parseFloat(getComputedStyle(e).fontSize) >= 16));
   assert.ok(await page.locator('.panel-description').evaluate((e) => parseFloat(getComputedStyle(e).fontSize) >= 16));
   for (const challenge of DESAFIOS) {
+    assert.equal(await page.getByRole('button', { name: 'Próxima fase', exact: true }).count(), 0);
     await construir(page, challenge);
     const before = await page.locator('.workspace-svg [data-fragment-id]').evaluateAll((elements) => elements.map((e) => e.getAttribute('transform')));
     await conferir(page, challenge);
@@ -64,6 +65,11 @@ try {
     await page.getByRole('button', { name: 'Fórmula plana completa', exact: true }).click();
     if (challenge !== DESAFIOS.at(-1)) await page.getByRole('button', { name: 'Próximo desafio' }).click();
   }
+  const nextPhase = page.getByRole('button', { name: 'Próxima fase', exact: true });
+  await nextPhase.waitFor();
+  assert.equal((await nextPhase.textContent()).trim(), 'Próxima fase');
+  await nextPhase.click();
+  await page.getByRole('heading', { name: 'Vamos montar eteno?', exact: true }).waitFor();
   await context.close();
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
   const touch = await mobile.newPage(); touch.on('pageerror', (e) => errors.push(e.message));

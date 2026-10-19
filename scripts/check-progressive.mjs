@@ -101,10 +101,20 @@ try {
   await page.goto(base);
   await page.getByRole('link', { name: 'Explorar intermediário', exact: true }).click();
   await page.getByRole('heading', { name: 'Vamos montar eteno?' }).waitFor();
+  assert.equal(await page.getByRole('button', { name: 'Próxima fase', exact: true }).count(), 0);
   for (const challenge of [...DESAFIOS_INTERMEDIARIOS, ...DESAFIOS_AVANCADOS]) {
     await launch(challenge); await build(challenge); await verify(challenge);
     if (['eteno', 'etino', 'metilamina', 'ciclohexano', 'benzeno'].includes(challenge.id)) await page.screenshot({ path: `test-results/progressivo-${challenge.id}.png`, fullPage: true });
     console.log(`Navegador: ${challenge.nivel} / ${challenge.nome} ✓`);
+    const nextPhase = page.getByRole('button', { name: 'Próxima fase', exact: true });
+    if (challenge === DESAFIOS_INTERMEDIARIOS.at(-1)) {
+      await nextPhase.waitFor();
+      assert.equal((await nextPhase.textContent()).trim(), 'Próxima fase');
+      await nextPhase.scrollIntoViewIfNeeded();
+      await page.screenshot({ path: 'test-results/proxima-fase-intermediario.png', fullPage: true });
+      await nextPhase.click();
+      await page.getByRole('heading', { name: 'Vamos montar propanona?', exact: true }).waitFor();
+    } else assert.equal(await nextPhase.count(), 0);
   }
   // Navegação mantém a sessão; trocar a representação mantém a química.
   await page.getByRole('link', { name: 'Intermediário', exact: true }).click();

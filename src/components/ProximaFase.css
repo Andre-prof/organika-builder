@@ -1,0 +1,5 @@
+.proxima-fase { display: flex; align-items: center; gap: 18px; padding: 24px; margin: 0 0 28px; border: 1px solid #bdcfe1; border-radius: 16px; background: #e9f0f8; color: #294e74; }
+.proxima-fase > div { flex: 1; }
+.proxima-fase h3 { margin: 0 0 6px; font-size: 23px; line-height: 1.4; }
+.proxima-fase p { margin: 0; font-size: 17px; line-height: 1.7; }
+@media (max-width: 760px) { .proxima-fase { flex-wrap: wrap; padding: 20px 17px; gap: 14px; } .proxima-fase > div { min-width: 180px; } .proxima-fase > .button { width: 100%; font-size: 17px; min-height: 52px; } }
