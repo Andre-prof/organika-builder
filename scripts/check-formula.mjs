@@ -29,6 +29,10 @@ async function construir(page, challenge) {
 async function conferir(page, challenge) {
   await page.getByRole('button', { name: 'Verificar estrutura' }).click();
   await page.getByRole('heading', { name: 'Fórmula estrutural plana completa', exact: true }).waitFor();
+  assert.ok((await page.getByRole('button', { name: 'Verificar estrutura', exact: true }).getAttribute('class')).includes('secondary'));
+  const next = page.getByRole('button', { name: 'Próximo desafio', exact: true });
+  if (await next.count()) assert.ok((await next.getAttribute('class')).includes('primary'));
+  assert.ok((await page.locator('.celebracao-acerto strong').innerText()).length > 0);
   assert.equal(await page.locator('.workspace-scroll .formula-svg [data-atom-id]').count(), challenge.alvo.atoms.length);
   assert.equal(await page.locator('.formula-svg [data-element="H"]').count(), challenge.alvo.atoms.filter((a) => a.element === 'H').length);
   assert.equal(await page.locator('.formula-svg [data-bond-id]').count(), challenge.alvo.bonds.length);

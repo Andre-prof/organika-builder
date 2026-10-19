@@ -50,6 +50,7 @@ async function build(challenge) {
   }
 }
 async function verify(challenge) {
+  assert.ok((await page.getByRole('button', { name: 'Verificar estrutura', exact: true }).getAttribute('class')).includes('primary'));
   if (challenge.nivel === 'intermediario') {
     const expected = challenge.alvo.bonds.filter((b) => !b.internal).reduce((s, b) => s + b.order * 2, 0);
     assert.equal(await page.locator('.progressive-svg [data-port-id] [data-connector-unit]').count(), expected, 'Um conector visual por unidade de ligação em cada extremidade.');
@@ -57,6 +58,18 @@ async function verify(challenge) {
   await page.getByRole('button', { name: 'Verificar estrutura', exact: true }).click();
   await page.getByRole('heading', { name: 'Fórmula estrutural plana completa', exact: true }).waitFor();
   await page.locator('.progressive-feedback.success').waitFor();
+  assert.ok((await page.getByRole('button', { name: 'Verificar estrutura', exact: true }).getAttribute('class')).includes('secondary'));
+  const next = page.getByRole('button', { name: 'Próximo desafio', exact: true });
+  if (await next.count()) assert.ok((await next.getAttribute('class')).includes('primary'));
+  const celebration = page.locator('.celebracao-acerto strong');
+  assert.ok((await celebration.innerText()).length > 0);
+  if (challenge.id === 'eteno') {
+    const previous = await celebration.innerText();
+    await page.getByRole('button', { name: 'Verificar estrutura', exact: true }).click();
+    assert.notEqual(await celebration.innerText(), previous, 'A mensagem de incentivo varia sem repetição consecutiva.');
+    await page.locator('.celebracao-acerto').waitFor({ state: 'detached', timeout: 5000 });
+    assert.ok((await next.getAttribute('class')).includes('primary'), 'O destaque do próximo desafio permanece após a animação.');
+  }
   assert.equal(await page.locator('.formula-svg [data-atom-id]').count(), challenge.alvo.atoms.length);
   assert.equal(await page.locator('.formula-svg [data-bond-id]').count(), challenge.alvo.bonds.length);
   for (const order of [1, 2, 3]) assert.equal(await page.locator(`.formula-svg [data-bond-order="${order}"] line`).count(), challenge.alvo.bonds.filter((b) => b.order === order).length * order);

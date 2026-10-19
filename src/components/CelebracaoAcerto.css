@@ -1,0 +1,10 @@
+.celebracao-acerto { position: absolute; z-index: 8; top: 112px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; gap: 14px; width: max-content; max-width: calc(100% - 32px); padding: 20px 28px; border: 1px solid #91b9e2; border-radius: 20px; background: #f7fbff; color: #204f7d; box-shadow: 0 12px 35px #203e5c26; pointer-events: none; animation: celebracao-entrada .4s ease-out both, celebracao-saida .3s ease-in 2.9s forwards; }
+.celebracao-acerto strong { font-size: 25px; line-height: 1.35; text-align: center; }
+.celebracao-selo { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; background: #d9eaff; color: #285e92; }
+.celebracao-brilhos { position: absolute; inset: 0; }
+.celebracao-brilhos i { position: absolute; width: 7px; height: 7px; border-radius: 2px; background: #70a5da; left: calc(10% + var(--i) * 16%); top: 0; opacity: 0; animation: celebracao-brilho .9s ease-out calc(var(--i) * .06s) both; }
+@keyframes celebracao-entrada { from { opacity: 0; transform: translate(-50%, 15px) scale(.92); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+@keyframes celebracao-saida { to { opacity: 0; transform: translate(-50%, -8px); } }
+@keyframes celebracao-brilho { 25% { opacity: 1; } to { opacity: 0; transform: translateY(-42px) rotate(110deg); } }
+@media (max-width: 760px) { .celebracao-acerto { top: 155px; padding: 17px 20px; gap: 10px; } .celebracao-acerto strong { font-size: 22px; } .celebracao-selo { width: 42px; height: 42px; } }
+@media (prefers-reduced-motion: reduce) { .celebracao-acerto { animation: none; } .celebracao-brilhos { display: none; } }
