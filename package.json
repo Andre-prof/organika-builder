@@ -1,0 +1,20 @@
+{
+  "name": "organika-builder",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Orgânika Builder: montagem molecular nos modos iniciante, intermediário e avançado",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5175 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4175 --strictPort",
+    "test:browser": "node scripts/check-browser.mjs",
+    "test:formula": "node scripts/check-formula.mjs",
+    "test:progressive": "node scripts/check-progressive.mjs",
+    "test": "node --test",
+    "exemplos": "node examples/montagens.js"
+  },
+  "dependencies": { "react": "19.2.6", "react-dom": "19.2.6", "zustand": "5.0.15" },
+  "devDependencies": { "vite": "8.0.13", "@vitejs/plugin-react": "6.0.2", "playwright": "1.62.1" }
+}

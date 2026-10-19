@@ -1,0 +1,76 @@
+.welcome-levels { margin: 55px 0; }
+.welcome-levels h2 { font-size: clamp(26px, 3vw, 36px); margin: 12px 0 24px; color: #183d64; }
+.level-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.level-cards article { padding: 28px; background: #f1f6fc; border: 1px solid #c6d8ee; border-radius: 22px; display: flex; flex-direction: column; align-items: flex-start; }
+.level-cards article > span { font-size: 14px; color: #325d88; font-weight: 700; letter-spacing: .06em; }
+.level-cards h3 { margin: 18px 0 10px; font-size: 24px; color: #183d64; }
+.level-cards p { font-size: 18px; line-height: 1.6; margin: 0 0 24px; flex: 1; }
+.level-cards .button { width: 100%; }
+.level-navigation { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+.level-navigation a { padding: 12px 20px; border: 1px solid #b9d0ea; border-radius: 12px; font-size: 17px; color: #214e7d; text-decoration: none; background: #f4f8fd; }
+.level-navigation a[aria-current], .level-navigation button[aria-pressed=true] { background: #204f82; color: white; }
+.progressive-bond-order { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 18px 18px; font-size: 18px; }
+.progressive-bond-order button, .progressive-connection-list button, .progressive-remove-bonds button { background: #f4f8fd; color: #204f82; border: 1px solid #b3cdea; border-radius: 10px; padding: 12px 16px; min-height: 48px; font: inherit; font-size: 17px; cursor: pointer; }
+.progressive-bond-order button[aria-pressed=true], .progressive-connection-list button[aria-pressed=true] { background: #204f82; color: white; }
+.progressive-bond-order button:disabled { opacity: .6; cursor: default; }
+.progressive-canvas { height: 440px; position: relative; overflow: auto; background: #eef2f7; }
+.progressive-shell .progressive-canvas.formula-mode.ring-formula, .progressive-teacher-answer .workspace-scroll.formula-mode { height: 720px; }
+.progressive-svg { width: 100%; min-width: 900px; min-height: 0; height: 100%; display: block; touch-action: none; user-select: none; }
+.progressive-bonds line { stroke: #224f7a; stroke-width: 4; stroke-linecap: round; }
+.progressive-piece { cursor: grab; touch-action: none; }
+.progressive-piece .piece-body { fill: #ccd9e6; stroke: #5d7a98; stroke-width: 2; }
+.progressive-piece.selected .piece-body { stroke: #133f70; stroke-width: 5; }
+.progressive-piece text { fill: #163f69; font-size: 40px; font-weight: 700; pointer-events: none; }
+.progressive-port { cursor: pointer; }
+.progressive-port .port-ring { fill: white; stroke: #357fcb; stroke-width: 3; }
+.progressive-port text { font-size: 20px; }
+.progressive-port.source .port-ring { fill: #164f8b; stroke: #163f69; stroke-width: 5; }
+.progressive-port.source text { fill: white; }
+.progressive-port.occupied .port-ring { fill: #3978ba; }
+.progressive-port.occupied text { fill: white; font-size: 18px; }
+.progressive-atom { cursor: grab; touch-action: none; }
+.atom-puzzle-body { fill: #ccd9e6; stroke: #5d7a98; stroke-width: 2; }
+.progressive-atom.element-O .atom-puzzle-body { fill: #cbd8e5; }
+.progressive-atom.element-N .atom-puzzle-body { fill: #b1ceeb; }
+.progressive-atom.element-H .atom-puzzle-body { fill: #f8fbff; }
+.progressive-atom.selected .atom-puzzle-body, .progressive-atom.source .atom-puzzle-body, .progressive-atom:focus-visible .atom-puzzle-body { stroke: #144477; stroke-width: 4; }
+.puzzle-connectors path { fill: #f8fbff; stroke: #3978ba; stroke-width: 2; }
+.puzzle-connectors.occupied path { fill: #3978ba; stroke: #244f7c; }
+.progressive-port.source .puzzle-connectors path, .progressive-port:focus-visible .puzzle-connectors path { fill: #b9d7f5; stroke: #153f6c; stroke-width: 3; }
+.progressive-atom circle { fill: #ccd9e6; stroke: #5d7a98; stroke-width: 3; }
+.progressive-atom text { fill: #183f6b; font-size: 32px; font-weight: 700; pointer-events: none; }
+.progressive-atom .atom-index { font-size: 18px; font-weight: 600; }
+.progressive-atom.element-O circle { fill: #cbd8e5; stroke: #5d7a98; }
+.progressive-atom.element-N circle { fill: #b1ceeb; stroke: #5d7a98; }
+.progressive-atom.element-H circle { fill: white; stroke: #829bb7; }
+.progressive-atom.source circle, .progressive-atom.selected circle { stroke: #144477; stroke-width: 6; }
+.progressive-atom.source circle { fill: #a6cff9; }
+.progressive-piece:focus-visible .piece-body, .progressive-atom:focus-visible circle, .progressive-port:focus-visible .port-ring { stroke: #072b53; stroke-width: 7; }
+.progressive-empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; pointer-events: none; }
+.progressive-empty h3 { font-size: 26px; color: #345d88; }
+.progressive-empty p { font-size: 18px; color: #466886; }
+.progressive-selection { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 18px; }
+.progressive-controls > .progressive-selection, .progressive-controls > p, .progressive-controls > .progressive-connection-list, .progressive-controls > .progressive-remove-bonds { flex-basis: 100%; }
+.progressive-controls p { font-size: 17px; line-height: 1.6; }
+.progressive-connection-list, .progressive-remove-bonds { display: flex; flex-wrap: wrap; gap: 10px; }
+.progressive-connection-list strong { display: block; font-size: 16px; margin-top: 5px; }
+.progressive-remove-bonds { margin-top: 22px; }
+.progressive-remove-bonds button { font-size: 16px; text-align: left; }
+.progressive-session-note { font-size: 17px; line-height: 1.65; margin: 28px 0; color: #466886; }
+.progressive-teacher { margin: 38px 0; border-top: 1px solid #c7d8ec; padding-top: 30px; }
+.progressive-teacher h2 { font-size: 28px; color: #183d64; }
+.progressive-teacher p { font-size: 17px; line-height: 1.65; }
+.progressive-teacher-list article { border: 1px solid #c7d8ec; background: white; border-radius: 16px; padding: 24px; margin: 14px 0; }
+.progressive-teacher-list h3 { font-size: 22px; color: #244d76; margin: 0; }
+.progressive-teacher-list article > div:nth-child(2) { display: flex; gap: 10px; flex-wrap: wrap; }
+.progressive-teacher-answer { padding-top: 20px; }
+.progressive-teacher-answer .workspace-scroll { height: 560px; }
+@media (max-width: 900px) {
+  .level-cards { grid-template-columns: 1fr; }
+  .progressive-canvas { height: 400px; }
+  .progressive-controls { padding: 18px 14px; }
+  .progressive-bond-order { padding-left: 12px; gap: 6px; }
+  .progressive-bond-order button { padding: 10px; }
+  .level-navigation a { padding: 12px; font-size: 16px; }
+}
+@media print { .welcome-levels, .progressive-teacher { display: none; } }
