@@ -7,6 +7,12 @@ tons de azul e SVGs de peças de quebra-cabeça, sem imagens externas.
 
 ## Executar
 
+Jogue online: **https://andre-prof.github.io/organika-builder/**.
+
+A publicação é feita pelo GitHub Pages após cada envio à branch `main`.
+O fluxo `.github/workflows/pages.yml` instala as versões do lockfile,
+executa os testes e publica a pasta `dist` com o caminho do repositório.
+
 Com Node.js 22.13 ou superior e npm:
 
 ```sh
