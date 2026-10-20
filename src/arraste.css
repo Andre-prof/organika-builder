@@ -1,7 +1,18 @@
 /* O bloqueio do gesto nativo precisa estar no contêiner HTML, não só no SVG.
    Assim, o navegador não transforma o arraste da peça em rolagem/cancelamento. */
-.workspace-scroll:not(.formula-mode) { touch-action: none; overscroll-behavior: contain; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-.workspace-svg, .workspace-piece, .workspace-piece *, .progressive-svg, .progressive-piece, .progressive-piece *, .progressive-atom, .progressive-atom * { touch-action: none; }
+.workspace-scroll:not(.formula-mode) { touch-action: auto; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.workspace-svg, .progressive-svg { touch-action: pan-y; }
+.workspace-piece, .workspace-piece *, .progressive-piece, .progressive-piece *, .progressive-atom, .progressive-atom * { touch-action: none; }
 .workspace-piece .piece-label { pointer-events: none; }
 /* A barra nativa continua utilizável; no desenho, o fundo desloca a vista. */
 .workspace-scroll.progressive-canvas:not(.formula-mode) { touch-action: auto; }
+
+@media (max-width: 900px) {
+  /* Todas as opções ficam em linhas visíveis, sem uma paleta lateral escondida. */
+  .palette-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; width: 100%; }
+  .palette-item, .palette-item:only-child { min-width: 0; width: 100%; margin: 0; }
+  .palette-item:only-child { grid-column: 1 / -1; }
+  /* O viewBox inteiro cabe na tela. Rolagem vertical permanece no fundo vazio. */
+  .workspace-svg, .progressive-svg { min-width: 0; max-width: 100%; width: 100%; }
+  .workspace-scroll:not(.formula-mode) { min-width: 0; max-width: 100%; }
+}

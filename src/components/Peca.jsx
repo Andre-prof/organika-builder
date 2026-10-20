@@ -52,10 +52,10 @@ export function Peca({ fragment, pose, selected, origem, destino, scale, onDrag,
         onPointerDown={(e) => e.stopPropagation()}
         onClick={(e) => { e.stopPropagation(); onPort(p.id); }}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onPort(p.id); } }}>
-        <circle cx={x + 80} cy={y + 60} r={Math.max(22 / scale, 15)} fill="transparent" />
+        <circle cx={x + 80} cy={y + 60} r={Math.min(27, Math.max(22 / scale, 15))} fill="transparent" />
         <title>{destino === p.id ? 'Solte a peça para conectar aqui' : `Conector livre ${i + 1}`}</title>
         {destino === p.id && <circle className="snap-halo" cx={x + 80} cy={y + 60} r={18 / scale} fill="#d5eaff" stroke="#3978ba" strokeWidth="1.5" strokeDasharray="4 3" />}
-        <circle className="port-ring" cx={x + 80} cy={y + 60} r={Math.max(10 / scale, 9)} fill="white" stroke="#3978ba" strokeWidth="2.3" />
+        <circle className="port-ring" cx={x + 80} cy={y + 60} r={Math.min(17, Math.max(10 / scale, 9))} fill="white" stroke="#3978ba" strokeWidth="2.3" />
         <circle cx={x + 80} cy={y + 60} r="3" fill="#3978ba" />
       </g>;
     })}

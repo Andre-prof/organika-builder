@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gameStore } from '../store/useGameStore.js';
 import { componenteDe, calcularEncaixe, posicaoDeInsercao } from '../scene/geometria.js';
 import { Molecule } from '../domain/Molecule.js';
+import { useToqueNasPecas } from './useToqueNasPecas.js';
 
 export function pontoNaBancada(svg, clientX, clientY) {
   if (!svg?.getScreenCTM()) return null;
@@ -11,6 +12,7 @@ export function pontoNaBancada(svg, clientX, clientY) {
 
 /** Arrastar só produz uma alteração confirmada em pointerup. Escape cancela. */
 export function useArraste(boardRef) {
+  useToqueNasPecas(boardRef);
   const [drag, setDrag] = useState(null);
   const active = useRef(null); const ignoreClickUntil = useRef(0);
   useEffect(() => {

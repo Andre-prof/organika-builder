@@ -9,6 +9,7 @@ import { Icon } from '../components/Icon.jsx';
 import { ConectoresPuzzle, CorpoAtomoPuzzle, encaixesAtomo } from '../components/ConectoresPuzzle.jsx';
 import { CelebracaoAcerto, useCelebracaoAcerto } from '../components/CelebracaoAcerto.jsx';
 import { ProximaFase } from '../components/ProximaFase.jsx';
+import { useToqueNasPecas } from '../hooks/useToqueNasPecas.js';
 
 export const NOMES_NIVEIS = { intermediario: 'Intermediário', avancado: 'Avançado' };
 const ordens = { 1: 'simples', 2: 'dupla', 3: 'tripla' };
@@ -42,6 +43,7 @@ export default function LaboratorioProgressivo({ nivel }) {
   const { celebracao, verificarComCelebracao } = useCelebracaoAcerto(`${nivel}:${state.indice}`, state.resultado?.objetivoCorreto);
   const svg = useRef(null); const pointer = useRef(null); const [preview, setPreview] = useState(null); const [dialog, setDialog] = useState(null);
   const [snap, setSnap] = useState(false);
+  useToqueNasPecas(svg);
   const poses = preview || state.poses; const molecule = state.molecule;
   const external = molecule.bonds.filter((b) => !b.internal);
   const items = intermediate ? molecule.fragments : molecule.atoms;
@@ -55,6 +57,7 @@ export default function LaboratorioProgressivo({ nivel }) {
     if (p.x < box.left + margin || p.x > box.right - margin) canvas.scrollLeft += p.x - (box.left + box.width / 2);
   }, [items.length, nivel, state.indice]);
   useEffect(() => { pointer.current = null; setPreview(null); setDialog(null); }, [nivel, state.indice]);
+  useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }, [nivel, state.indice]);
   const boardPoint = (event) => {
     const matrix = svg.current?.getScreenCTM();
     if (!matrix) return null;

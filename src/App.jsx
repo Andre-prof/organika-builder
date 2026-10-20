@@ -15,7 +15,6 @@ import Professor from './pages/Professor.jsx';
 import { FormulaPlana } from './components/FormulaPlana.jsx';
 import LaboratorioProgressivo from './pages/LaboratorioProgressivo.jsx';
 import './progressive.css';
-import './arraste.css';
 import { CelebracaoAcerto, useCelebracaoAcerto } from './components/CelebracaoAcerto.jsx';
 import { ProximaFase } from './components/ProximaFase.jsx';
 
@@ -56,6 +55,7 @@ function Laboratorio({ onRestart }) {
   const board = useRef(null); const [scale, setScale] = useState(1);
   const [dialog, setDialog] = useState(null);
   const drag = useArraste(board);
+  useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }, [state.desafioId]);
   useEffect(() => {
     const observer = new ResizeObserver(() => {
       const matrix = board.current?.getScreenCTM();

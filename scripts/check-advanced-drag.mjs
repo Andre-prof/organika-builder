@@ -20,7 +20,7 @@ try {
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [source] });
   for (let i = 1; i <= 12; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ ...source, x: source.x + i * 10 }] });
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  assert.ok(await page.locator('.progressive-canvas').evaluate(el => el.scrollLeft) < left - 60, 'Arrastar o fundo deve deslocar a bancada.');
+  assert.ok(await page.locator('.progressive-canvas').evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'A bancada inteira deve caber na largura do celular.');
   const mobileAtom = page.locator('.progressive-atom').first();
   await mobileAtom.scrollIntoViewIfNeeded();
   const start = await mobileAtom.evaluate(el => {
