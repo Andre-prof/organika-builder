@@ -3,3 +3,5 @@
 .workspace-scroll:not(.formula-mode) { touch-action: none; overscroll-behavior: contain; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .workspace-svg, .workspace-piece, .workspace-piece *, .progressive-svg, .progressive-piece, .progressive-piece *, .progressive-atom, .progressive-atom * { touch-action: none; }
 .workspace-piece .piece-label { pointer-events: none; }
+/* A barra nativa continua utilizável; no desenho, o fundo desloca a vista. */
+.workspace-scroll.progressive-canvas:not(.formula-mode) { touch-action: auto; }

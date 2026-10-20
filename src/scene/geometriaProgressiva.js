@@ -33,6 +33,31 @@ export function posesValidas(molecule, poses) {
     return Math.abs(a.x - b.x) < (width + ow) / 2 + 6 && Math.abs(a.y - b.y) < (height + (ow === 88 ? 132 : 88)) / 2 + 6;
   }));
 }
+/** Limita bordas e desliza junto a obstáculos antes de desenhar a prévia. */
+export function moverComLimites(molecule, poses, id, dx, dy) {
+  const ids = conjuntoProgressivo(molecule, id);
+  const margin = molecule.nivel === 'intermediario' ? 100 : 35;
+  dx = Math.max(margin - Math.min(...ids.map(key => poses[key].x)), Math.min(1200 - margin - Math.max(...ids.map(key => poses[key].x)), dx));
+  dy = Math.max(margin - Math.min(...ids.map(key => poses[key].y)), Math.min(760 - margin - Math.max(...ids.map(key => poses[key].y)), dy));
+  const destination = structuredClone(poses);
+  for (const key of ids) { destination[key].x += dx; destination[key].y += dy; }
+  // É possível passar por cima de outro item durante o gesto, sem largar sobre ele.
+  if (posesValidas(molecule, destination)) return destination;
+  let next = structuredClone(poses);
+  const steps = Math.max(1, Math.ceil(Math.hypot(dx, dy) / 8));
+  const attempt = (x, y) => {
+    const candidate = structuredClone(next);
+    for (const key of ids) { candidate[key].x += x; candidate[key].y += y; }
+    if (!posesValidas(molecule, candidate)) return false;
+    next = candidate; return true;
+  };
+  for (let i = 0; i < steps; i++) {
+    if (!attempt(dx / steps, dy / steps)) {
+      attempt(dx / steps, 0); attempt(0, dy / steps);
+    }
+  }
+  return next;
+}
 export function alinharProgressivo(molecule, poses, portA, portB) {
   const a = molecule.fragments.find((f) => f.ports.some((p) => p.id === portA));
   const b = molecule.fragments.find((f) => f.ports.some((p) => p.id === portB));

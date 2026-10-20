@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useProgressiveStore, progressiveStores } from '../store/useProgressiveStore.js';
 import { BLOCOS_INTERMEDIARIOS } from '../domain/MoleculaProgressiva.js';
 import { desafiosDoNivel } from '../data/desafiosProgressivos.js';
-import { pontoPorta, conjuntoProgressivo, encontrarEncaixeProgressivo } from '../scene/geometriaProgressiva.js';
+import { pontoPorta, conjuntoProgressivo, encontrarEncaixeProgressivo, moverComLimites } from '../scene/geometriaProgressiva.js';
 import { FormulaPlana } from '../components/FormulaPlana.jsx';
 import { PageHeader } from '../components/PageHeader.jsx';
 import { Icon } from '../components/Icon.jsx';
@@ -45,6 +45,15 @@ export default function LaboratorioProgressivo({ nivel }) {
   const poses = preview || state.poses; const molecule = state.molecule;
   const external = molecule.bonds.filter((b) => !b.internal);
   const items = intermediate ? molecule.fragments : molecule.atoms;
+  // Revele cada novo item na janela móvel, sem deslocar a página inteira.
+  useEffect(() => {
+    const pose = state.poses[state.selecao]; const canvas = svg.current?.closest('.workspace-scroll');
+    const matrix = svg.current?.getScreenCTM();
+    if (!pose || !canvas || !matrix || formula) return;
+    const p = new DOMPoint(pose.x, pose.y).matrixTransform(matrix);
+    const box = canvas.getBoundingClientRect(); const margin = intermediate ? 85 : 45;
+    if (p.x < box.left + margin || p.x > box.right - margin) canvas.scrollLeft += p.x - (box.left + box.width / 2);
+  }, [items.length, nivel, state.indice]);
   useEffect(() => { pointer.current = null; setPreview(null); setDialog(null); }, [nivel, state.indice]);
   const boardPoint = (event) => {
     const matrix = svg.current?.getScreenCTM();
@@ -60,12 +69,12 @@ export default function LaboratorioProgressivo({ nivel }) {
   }
   function move(event) {
     const drag = pointer.current; if (!drag || event.pointerId !== drag.pointerId) return;
+    if (drag.pan) { drag.capture.scrollLeft = drag.left + drag.clientX - event.clientX; return; }
     const point = boardPoint(event); if (!point) return;
     const dx = point.x - drag.x; const dy = point.y - drag.y;
     if (!drag.moved && Math.hypot(dx, dy) < 7) return;
     drag.moved = true;
-    const next = structuredClone(drag.poses);
-    for (const id of conjuntoProgressivo(molecule, drag.id)) next[id] = { ...next[id], x: next[id].x + dx, y: next[id].y + dy };
+    const next = moverComLimites(molecule, drag.poses, drag.id, dx, dy);
     drag.next = next;
     const matrix = svg.current.getScreenCTM(); const scale = Math.hypot(matrix.a, matrix.b);
     const candidate = encontrarEncaixeProgressivo(molecule, next, drag.id, scale, state.ordem);
@@ -75,6 +84,7 @@ export default function LaboratorioProgressivo({ nivel }) {
     const drag = pointer.current; if (!drag || event.pointerId !== drag.pointerId) return;
     pointer.current = null; setPreview(null); setSnap(false);
     if (drag.capture.hasPointerCapture(event.pointerId)) drag.capture.releasePointerCapture(event.pointerId);
+    if (drag.pan) return;
     if (!drag.moved) { if (intermediate) state.selecionar(drag.id); else state.escolherConexao(drag.id); return; }
     const matrix = svg.current.getScreenCTM(); state.soltar(drag.id, drag.next, Math.hypot(matrix.a, matrix.b));
   }
@@ -103,7 +113,7 @@ export default function LaboratorioProgressivo({ nivel }) {
         <div className="challenge-heading"><div className="challenge-number">{String(state.indice + 1).padStart(2, '0')}<span>/ {desafios.length}</span></div><div className="challenge-copy"><div className="eyebrow">{NOMES_NIVEIS[nivel]} <span>•</span> DESAFIO {state.indice + 1}</div><h2 id="page-title" tabIndex="-1">Vamos montar {challenge.nome.toLowerCase()}?</h2><p>{intermediate ? 'Fragmentos conhecidos, novas ligações. Os H continuam fixos em cada peça.' : 'Construa com átomos individuais. Cada H e cada ligação precisam ser colocados.'}</p></div><button className={`hint-button${state.dica ? ' activated' : ''}`} onClick={state.mostrarDica} aria-expanded={state.dica}><Icon name="bulb" /> Uma dica</button></div>
         {state.dica && <div className="hint-text"><Icon name="bulb" /><p>{challenge.dica}</p></div>}
         <div className="lab-body">
-        <aside className="palette"><div className="section-label"><h3>{intermediate ? 'Suas peças' : 'Seus átomos'}</h3><span>{Object.values(challenge.inventario).reduce((a, b) => a + b, 0)}</span></div><p className="panel-description">Toque para adicionar. Arraste na bancada para mover.</p><div className="palette-grid">{Object.entries(challenge.inventario).map(([tipo, total]) => {
+        <aside className="palette"><div className="section-label"><h3>{intermediate ? 'Suas peças' : 'Seus átomos'}</h3><span>{Object.values(challenge.inventario).reduce((a, b) => a + b, 0)}</span></div><p className="panel-description">Toque para adicionar. Arraste o item para mover ou o fundo vazio para deslocar a bancada.</p><div className="palette-grid">{Object.entries(challenge.inventario).map(([tipo, total]) => {
           const used = intermediate ? molecule.fragments.filter((f) => f.templateId === tipo).length : molecule.atoms.filter((a) => a.element === tipo).length;
           const orders = intermediate ? BLOCOS_INTERMEDIARIOS[tipo].ports.map((p) => ordens[p.allowedOrders[0]]).join(' + ') : null;
           return <button className={`palette-item${used >= total ? ' exhausted' : ''}`} key={tipo} data-palette-type={tipo} disabled={used >= total || formula} onClick={() => state.adicionar(tipo)} aria-label={`Adicionar ${intermediate ? nomePeca(tipo) : tipo}, ${total - used} disponíveis`}><span className="piece-quantity">×{total - used}</span><svg viewBox="-100 -75 200 150" aria-hidden="true">{intermediate ? <><CorpoPeca portas={BLOCOS_INTERMEDIARIOS[tipo].ports.length} />{BLOCOS_INTERMEDIARIOS[tipo].ports.map((p, pi) => { const count = BLOCOS_INTERMEDIARIOS[tipo].ports.length; const angle = count === 1 ? 0 : [180, 0, -90][pi]; return <ConectoresPuzzle key={pi} x={Math.cos(angle * Math.PI / 180) * (pi === 2 ? 60 : 82)} y={Math.sin(angle * Math.PI / 180) * (pi === 2 ? 60 : 82)} angle={angle} ordem={p.allowedOrders[0]} />; })}</> : <g transform="scale(1.35)"><CorpoAtomoPuzzle element={tipo} />{encaixesAtomo({ bonds: [] }, { id: "preview", element: tipo }, { preview: { x: 0, y: 0 } }, state.ordem).map((p, pi) => <ConectoresPuzzle key={pi} {...p} pequeno />)}</g>}<text textAnchor="middle" dominantBaseline="central" fontSize="40" fill="#26323e" fontWeight="600">{intermediate ? nomePeca(tipo) : tipo}</text></svg><span className="palette-piece-name">{orders || `${{ C: 4, H: 1, O: 2, N: 3 }[tipo]} ${tipo === 'H' ? 'ligação' : 'ligações'}`}</span></button>;
@@ -112,7 +122,12 @@ export default function LaboratorioProgressivo({ nivel }) {
           <div className="workspace-topbar"><div><span className="live-dot" /><span>Bancada de montagem</span></div><div className="history-buttons"><button className="icon-button" aria-label="Desfazer" disabled={!state.podeDesfazer} onClick={state.desfazer}><Icon name="undo" size={18} /></button><button className="icon-button" aria-label="Refazer" disabled={!state.podeRefazer} onClick={state.refazer}><Icon name="redo" size={18} /></button><span /><button className="icon-button" aria-label="Limpar" disabled={!items.length} onClick={() => setDialog('clear')}><Icon name="trash" size={18} /></button></div></div>
           <div className="progressive-bond-order" role="group" aria-label="Ordem da ligação"><span>Ligação:</span>{[1, 2, 3].map((n) => <button key={n} disabled={formula} aria-pressed={state.ordem === n} onClick={() => state.definirOrdem(n)}>{n === 1 ? '—' : n === 2 ? '=' : '≡'} {ordens[n]}</button>)}</div>
           <div className="workspace-view-toggle" role="group" aria-label="Representação da molécula"><button aria-pressed={!formula} onClick={() => state.alterarVisualizacao('puzzle')}>{intermediate ? 'Quebra-cabeça' : 'Montagem por átomos'}</button><button aria-pressed={formula} disabled={!state.resultado?.completa} onClick={() => state.alterarVisualizacao('formula')}>Fórmula plana completa</button></div>
-          <div className={`workspace-scroll progressive-canvas${formula ? ' formula-mode' : ''}${formula && state.resultado?.analise?.ciclica ? ' ring-formula' : ''}`} onPointerMove={move} onPointerUp={end} onPointerCancel={cancel} onLostPointerCapture={() => { if (pointer.current) cancel(); }}>
+          <div className={`workspace-scroll progressive-canvas${formula ? ' formula-mode' : ''}${formula && state.resultado?.analise?.ciclica ? ' ring-formula' : ''}`} onPointerDown={(event) => {
+            if (formula || pointer.current || event.target.closest('.progressive-piece, .progressive-atom, button, [role="button"]')) return;
+            const capture = event.currentTarget;
+            capture.setPointerCapture(event.pointerId);
+            pointer.current = { pan: true, capture, pointerId: event.pointerId, clientX: event.clientX, left: capture.scrollLeft };
+          }} onPointerMove={move} onPointerUp={end} onPointerCancel={cancel} onLostPointerCapture={() => { if (pointer.current) cancel(); }}>
             <CelebracaoAcerto celebracao={celebracao} />
             {formula ? <FormulaPlana molecule={molecule} onPuzzle={() => state.alterarVisualizacao('puzzle')} /> : <>
               <svg ref={svg} className="progressive-svg" viewBox="0 0 1200 760" role="region" aria-label="Bancada molecular interativa">
