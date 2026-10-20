@@ -15,6 +15,7 @@ import Professor from './pages/Professor.jsx';
 import { FormulaPlana } from './components/FormulaPlana.jsx';
 import LaboratorioProgressivo from './pages/LaboratorioProgressivo.jsx';
 import './progressive.css';
+import './arraste.css';
 import { CelebracaoAcerto, useCelebracaoAcerto } from './components/CelebracaoAcerto.jsx';
 import { ProximaFase } from './components/ProximaFase.jsx';
 

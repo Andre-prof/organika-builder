@@ -40,7 +40,7 @@ export function Peca({ fragment, pose, selected, origem, destino, scale, onDrag,
   return <g transform={`translate(${pose.x} ${pose.y}) rotate(${pose.angle}) translate(-80 -60)`}
     className={`workspace-piece${selected ? ' selected' : ''}`} data-fragment-id={fragment.id}
     role="group" aria-label={`Peça ${BLOCOS[fragment.templateId].nome}`} tabIndex="0"
-    onPointerDown={(event) => { if (event.button === 0) onDrag(event, { kind: 'fragment', id: fragment.id }); }}
+    onPointerDown={(event) => { if (event.pointerType !== 'mouse' || event.button === 0) onDrag(event, { kind: 'fragment', id: fragment.id }); }}
     onClick={(event) => { event.stopPropagation(); onSelect(fragment.id); }}
     onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(fragment.id); } }}>
     <DesenhoPeca templateId={fragment.templateId} ports={fragment.ports} selected={selected} origem={origem} angle={pose.angle} />

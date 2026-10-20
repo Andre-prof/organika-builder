@@ -1,0 +1,5 @@
+/* O bloqueio do gesto nativo precisa estar no contêiner HTML, não só no SVG.
+   Assim, o navegador não transforma o arraste da peça em rolagem/cancelamento. */
+.workspace-scroll:not(.formula-mode) { touch-action: none; overscroll-behavior: contain; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.workspace-svg, .workspace-piece, .workspace-piece *, .progressive-svg, .progressive-piece, .progressive-piece *, .progressive-atom, .progressive-atom * { touch-action: none; }
+.workspace-piece .piece-label { pointer-events: none; }

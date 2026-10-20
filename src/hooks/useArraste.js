@@ -45,7 +45,8 @@ export function useArraste(boardRef) {
       }
       setDrag(task.preview);
     }
-    function cancel() {
+    function cancel(event) {
+      if (event?.pointerId !== undefined && active.current && event.pointerId !== active.current.pointerId) return;
       if (active.current?.moved) ignoreClickUntil.current = performance.now() + 350;
       const task = active.current;
       if (task?.capture?.hasPointerCapture?.(task.pointerId)) task.capture.releasePointerCapture(task.pointerId);
@@ -66,7 +67,7 @@ export function useArraste(boardRef) {
           if (task.kind === 'palette') state.adicionarPeca(task.templateId, posicaoDeInsercao(preview.point), true, preview.scale);
           else state.moverConjunto(task.id, preview.poses, true, preview.scale);
         }
-      }
+      } else if (!task.moved && task.kind === 'fragment') gameStore.getState().selecionar(task.id);
       active.current = null; setDrag(null);
     }
     const escape = (e) => { if (e.key === 'Escape') cancel(); };
@@ -75,12 +76,14 @@ export function useArraste(boardRef) {
     return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', cancel); window.removeEventListener('keydown', escape); };
   }, [boardRef]);
   function iniciar(event, info) {
-    if (event.button !== 0 || !event.isPrimary) return;
+    if ((event.pointerType === 'mouse' && event.button !== 0) || event.isPrimary === false || active.current) return;
     const state = gameStore.getState();
     const start = pontoNaBancada(boardRef.current, event.clientX, event.clientY);
     if (!start) return;
-    event.currentTarget.setPointerCapture?.(event.pointerId);
-    active.current = { ...info, capture: event.currentTarget, pointerId: event.pointerId, clientX: event.clientX, clientY: event.clientY, start, poses: state.poses, moved: false };
+    // Captura num elemento HTML estável, inclusive quando o dedo sai do SVG.
+    const capture = info.kind === 'palette' ? event.currentTarget : boardRef.current?.closest('.workspace-scroll') || event.currentTarget;
+    capture.setPointerCapture?.(event.pointerId);
+    active.current = { ...info, capture, pointerId: event.pointerId, clientX: event.clientX, clientY: event.clientY, start, poses: state.poses, moved: false };
     if (info.kind === 'palette') {
       // Instância temporária para a prévia: nunca consome inventário nem altera a sessão.
       const preview = Molecule.restaurar(state.molecule);

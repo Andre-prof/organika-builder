@@ -158,6 +158,25 @@ try {
     }
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   }
+  // Regressão Android: o gesto sobre um CH₃ já colocado deve mover a peça,
+  // sem transformar o arraste em rolagem horizontal da bancada.
+  await touch.getByRole('button', { name: 'Adicionar CH₃, 2 disponíveis' }).tap();
+  await touch.getByRole('button', { name: 'Adicionar CH₃, 1 disponíveis' }).tap();
+  const placed = touch.locator('.workspace-piece').first();
+  await placed.scrollIntoViewIfNeeded();
+  const placedCenter = () => placed.evaluate(el => {
+    const p = new DOMPoint(80, 60).matrixTransform(el.getScreenCTM());
+    return { x: p.x, y: p.y };
+  });
+  const scrollBefore = await touch.locator('.workspace-scroll').evaluate(el => el.scrollLeft);
+  const touchBefore = await placedCenter();
+  await dragTouch(touchBefore, { x: touchBefore.x + 30, y: touchBefore.y + 65 });
+  const touchAfter = await placedCenter();
+  assert.ok(touchAfter.y > touchBefore.y + 40 && touchAfter.x > touchBefore.x + 20, 'O dedo deve arrastar o CH₃ colocado.');
+  assert.equal(await touch.locator('.workspace-scroll').evaluate(el => el.scrollLeft), scrollBefore);
+  await touch.screenshot({ path: 'test-results/android-arraste.png', fullPage: true });
+  console.log('OK: CH₃ colocado arrastado por toque sem rolar a bancada.');
+  await touch.reload();
   await touch.getByRole('button', { name: 'Adicionar CH₃, 2 disponíveis' }).scrollIntoViewIfNeeded();
   source = await center(touch.getByRole('button', { name: 'Adicionar CH₃, 2 disponíveis' }));
   await dragTouch(source, await point(touch, 300, 160));

@@ -52,10 +52,11 @@ export default function LaboratorioProgressivo({ nivel }) {
     return new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
   };
   function start(event, id) {
-    if (event.button !== 0 || !event.isPrimary) return;
+    if ((event.pointerType === 'mouse' && event.button !== 0) || event.isPrimary === false || pointer.current) return;
     const point = boardPoint(event); if (!point) return;
-    svg.current.setPointerCapture(event.pointerId);
-    pointer.current = { pointerId: event.pointerId, id, x: point.x, y: point.y, poses: structuredClone(state.poses), moved: false };
+    const capture = svg.current.closest('.workspace-scroll');
+    capture.setPointerCapture(event.pointerId);
+    pointer.current = { capture, pointerId: event.pointerId, id, x: point.x, y: point.y, poses: structuredClone(state.poses), moved: false };
   }
   function move(event) {
     const drag = pointer.current; if (!drag || event.pointerId !== drag.pointerId) return;
@@ -73,7 +74,7 @@ export default function LaboratorioProgressivo({ nivel }) {
   function end(event) {
     const drag = pointer.current; if (!drag || event.pointerId !== drag.pointerId) return;
     pointer.current = null; setPreview(null); setSnap(false);
-    if (svg.current.hasPointerCapture(event.pointerId)) svg.current.releasePointerCapture(event.pointerId);
+    if (drag.capture.hasPointerCapture(event.pointerId)) drag.capture.releasePointerCapture(event.pointerId);
     if (!drag.moved) { if (intermediate) state.selecionar(drag.id); else state.escolherConexao(drag.id); return; }
     const matrix = svg.current.getScreenCTM(); state.soltar(drag.id, drag.next, Math.hypot(matrix.a, matrix.b));
   }
@@ -111,10 +112,10 @@ export default function LaboratorioProgressivo({ nivel }) {
           <div className="workspace-topbar"><div><span className="live-dot" /><span>Bancada de montagem</span></div><div className="history-buttons"><button className="icon-button" aria-label="Desfazer" disabled={!state.podeDesfazer} onClick={state.desfazer}><Icon name="undo" size={18} /></button><button className="icon-button" aria-label="Refazer" disabled={!state.podeRefazer} onClick={state.refazer}><Icon name="redo" size={18} /></button><span /><button className="icon-button" aria-label="Limpar" disabled={!items.length} onClick={() => setDialog('clear')}><Icon name="trash" size={18} /></button></div></div>
           <div className="progressive-bond-order" role="group" aria-label="Ordem da ligação"><span>Ligação:</span>{[1, 2, 3].map((n) => <button key={n} disabled={formula} aria-pressed={state.ordem === n} onClick={() => state.definirOrdem(n)}>{n === 1 ? '—' : n === 2 ? '=' : '≡'} {ordens[n]}</button>)}</div>
           <div className="workspace-view-toggle" role="group" aria-label="Representação da molécula"><button aria-pressed={!formula} onClick={() => state.alterarVisualizacao('puzzle')}>{intermediate ? 'Quebra-cabeça' : 'Montagem por átomos'}</button><button aria-pressed={formula} disabled={!state.resultado?.completa} onClick={() => state.alterarVisualizacao('formula')}>Fórmula plana completa</button></div>
-          <div className={`workspace-scroll progressive-canvas${formula ? ' formula-mode' : ''}${formula && state.resultado?.analise?.ciclica ? ' ring-formula' : ''}`}>
+          <div className={`workspace-scroll progressive-canvas${formula ? ' formula-mode' : ''}${formula && state.resultado?.analise?.ciclica ? ' ring-formula' : ''}`} onPointerMove={move} onPointerUp={end} onPointerCancel={cancel} onLostPointerCapture={() => { if (pointer.current) cancel(); }}>
             <CelebracaoAcerto celebracao={celebracao} />
             {formula ? <FormulaPlana molecule={molecule} onPuzzle={() => state.alterarVisualizacao('puzzle')} /> : <>
-              <svg ref={svg} className="progressive-svg" viewBox="0 0 1200 760" role="region" aria-label="Bancada molecular interativa" onPointerMove={move} onPointerUp={end} onPointerCancel={cancel} onLostPointerCapture={() => { if (pointer.current) cancel(); }}>
+              <svg ref={svg} className="progressive-svg" viewBox="0 0 1200 760" role="region" aria-label="Bancada molecular interativa">
                 <defs><pattern id={`progressive-dots-${nivel}`} width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#adc5df" /></pattern></defs>
                 <rect width="1200" height="760" fill="#eef2f7" /><rect width="1200" height="760" fill={`url(#progressive-dots-${nivel})`} onClick={() => state.selecionar(null)} />
                 <g className="progressive-bonds">{external.map((b) => {
