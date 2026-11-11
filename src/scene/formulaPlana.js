@@ -1,8 +1,8 @@
 import { validarEstrutura } from '../game/ValidadorEstrutura.js';
 import { indexarGrafo } from '../game/grafo.js';
 
-const PASSO = 160;
-const DISTANCIA_H = 64;
+const PASSO = 112;
+const DISTANCIA_H = 80;
 const DIRECOES = { direita: [1, 0], baixo: [0, 1], esquerda: [-1, 0], cima: [0, -1] };
 const igual = (a, b) => a.x === b.x && a.y === b.y;
 function direcao(a, b) {
