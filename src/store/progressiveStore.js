@@ -1,3 +1,4 @@
+import { registrarConclusao } from '../game/certificacao.js';
 import { createStore } from 'zustand/vanilla';
 import { MoleculaProgressiva } from '../domain/MoleculaProgressiva.js';
 import { desafiosDoNivel } from '../data/desafiosProgressivos.js';
@@ -106,6 +107,7 @@ export function criarProgressiveStore(nivel) {
         result.mensagem += aviso;
         set({ resultado: result, poses, visualizacao: 'formula', origem: null,
           concluidos: correta ? [...new Set([...get().concluidos, desafios[get().indice].id])] : get().concluidos });
+        if (correta) registrarConclusao(nivel, desafios[get().indice].id);
         return notify(result);
       },
       alterarVisualizacao(v) { if (v === 'puzzle' || (v === 'formula' && get().resultado?.completa)) set({ visualizacao: v, origem: null }); },

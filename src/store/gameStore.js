@@ -1,3 +1,4 @@
+import { registrarConclusao } from '../game/certificacao.js';
 import { createStore } from 'zustand/vanilla';
 import { Molecule } from '../domain/Molecule.js';
 import { BLOCOS } from '../data/blocos.js';
@@ -112,6 +113,7 @@ export function criarGameStore() {
         const result = avaliarDesafio(engine.obterMolecula(), obterDesafio(get().desafioId));
         set({ resultado: result, feedback: result, visualizacao: result.completa ? 'formula' : 'puzzle', portaOrigem: null,
           concluidos: result.objetivoCorreto ? [...new Set([...get().concluidos, get().desafioId])] : get().concluidos });
+        if (result.objetivoCorreto) registrarConclusao('iniciante', get().desafioId);
         return result;
       },
       alterarVisualizacao(view) {

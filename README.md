@@ -64,7 +64,7 @@ H, ligações duplas, enquadramento, alternância de vistas e uso no celular.
 - Fórmula estrutural plana completa na própria bancada após Verificar.
 - Alternância entre quebra-cabeça e fórmula, com controles de ampliação.
 
-O progresso dura a sessão atual; recarregar a página reinicia os desafios.
+As conquistas são salvas por nome e turma neste navegador. Recarregar preserva os desafios concluídos; a montagem em andamento é reiniciada. Após os 30 desafios dos três níveis, o mascote entrega o certificado personalizado, com visualização, impressão e PDF.
 O roteiro salvo do professor é independente da sessão e permanece ao
 recomeçar ou recarregar. A importação altera apenas a seleção em revisão,
 sem iniciar uma sessão nem sobrescrever o roteiro salvo automaticamente.

@@ -1,3 +1,16 @@
+import { alunoAtual, completo, observar, sair, avisoSalvamento } from './game/certificacao.js';
+import { progressiveStores } from './store/useProgressiveStore.js';
+import Encerramento from './components/Encerramento.jsx';
+import EntradaAluno from './components/EntradaAluno.jsx';
+import './certificado.css';
+function restaurarAluno() {
+  const aluno = alunoAtual();
+  gameStore.getState().iniciarSessao();
+  gameStore.setState({ concluidos: aluno?.concluidos?.iniciante || [] });
+  for (const [nivel, store] of Object.entries(progressiveStores)) {
+    store.getState().reiniciar(); store.setState({ concluidos: aluno?.concluidos?.[nivel] || [] });
+  }
+}
 import { useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useGameStore, gameStore } from './store/useGameStore.js';
@@ -170,6 +183,19 @@ function paginaAtual() {
 
 export default function App() {
   const [page, setPage] = useState(paginaAtual);
+  const [aluno, setAluno] = useState(alunoAtual);
+  const [encerramento, setEncerramento] = useState(false);
+  const [, atualizar] = useState(0);
+  const jaCompleto = useRef(completo(aluno));
+  useEffect(() => {
+    restaurarAluno();
+    return observar(() => {
+      const atual = alunoAtual(); setAluno(atual); atualizar(n => n + 1);
+      const terminou = completo(atual);
+      if (terminou && !jaCompleto.current) setEncerramento(true);
+      jaCompleto.current = terminou;
+    });
+  }, []);
   const [dialog, setDialog] = useState(null);
   const [pendingIds, setPendingIds] = useState(null);
   const [print, setPrint] = useState(null);
@@ -193,15 +219,19 @@ export default function App() {
   function launch(ids) {
     const result = gameStore.getState().iniciarSessao(ids);
     if (!result.valido) return;
+    gameStore.setState({ concluidos: alunoAtual()?.concluidos?.iniciante || [] });
     setDialog(null); setPendingIds(null); navigate('laboratorio');
   }
-  function restart() { gameStore.getState().iniciarSessao(); navigate('inicio'); }
+  function restart() { gameStore.getState().iniciarSessao(); gameStore.setState({ concluidos: alunoAtual()?.concluidos?.iniciante || [] }); navigate('inicio'); }
   function printWorksheet(ids, comGabarito) {
     // O conteúdo precisa estar renderizado antes de o navegador abrir a impressão.
     flushSync(() => setPrint({ ids: [...ids], comGabarito }));
     window.print();
   }
+  if (['laboratorio', 'intermediario', 'avancado'].includes(page) && !aluno) return <EntradaAluno onEntrar={restaurarAluno} />;
+  if (encerramento && completo(aluno)) return <Encerramento onClose={() => setEncerramento(false)} />;
   return <>
+    {aluno && <aside className="aluno-bar"><span>{aluno.nome} · {aluno.turma}</span>{completo(aluno) && <button className="button secondary" onClick={() => setEncerramento(true)}>Ver certificado</button>}<button className="button secondary" onClick={() => { sair(); restaurarAluno(); navigate('inicio'); }}>Trocar aluno</button>{avisoSalvamento() && <p role="alert">{avisoSalvamento()}</p>}</aside>}
     {page === 'inicio' && <Inicio hasSession={hasSession} onStart={() => start()} onContinue={() => navigate('laboratorio')} onHelp={() => setDialog('help')} />}
     {page === 'professor' && <Professor onStart={start} onHelp={() => setDialog('help')} onPrint={printWorksheet} />}
     {page === 'laboratorio' && <Laboratorio onRestart={restart} />}
